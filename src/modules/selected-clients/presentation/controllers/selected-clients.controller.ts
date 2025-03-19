@@ -2,6 +2,7 @@ import { Controller, Post, Get, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AddRemoveSelectedClientUseCase } from '../../application/use-cases/add-remove-selected-client.use-case';
 import { FindAllSelectedClientsUseCase } from '../../application/use-cases/find-all-selected-clients.use-case';
+import { SelectedClientViewModel } from '../view-models/selected-client.view-model';
 
 @ApiTags('selected-clients')
 @Controller('selected-clients')
@@ -17,16 +18,23 @@ export class SelectedClientsController {
   @ApiResponse({
     status: 200,
     description: 'Cliente adicionado ou removido com sucesso',
+    type: SelectedClientViewModel,
   })
   @Post(':clientId')
   async toggleClient(@Param('clientId') clientId: number) {
-    return this.addRemoveUseCase.execute(clientId);
+    const client = await this.addRemoveUseCase.execute(clientId);
+    return client ? SelectedClientViewModel.toViewModel(client) : null;
   }
 
   @ApiOperation({ summary: 'Listar clientes selecionados com paginação' })
-  @ApiResponse({ status: 200, description: 'Lista de clientes selecionados' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de clientes selecionados',
+    type: [SelectedClientViewModel],
+  })
   @Get()
   async findAll(@Query('page') page: number = 1) {
-    return this.findAllUseCase.execute(page);
+    const { data, total } = await this.findAllUseCase.execute(page);
+    return { data: SelectedClientViewModel.toListViewModel(data), total };
   }
 }

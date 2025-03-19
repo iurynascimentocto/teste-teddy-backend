@@ -2,35 +2,52 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SelectedClient } from '../../domain/entities/selected-client.entity';
-import { SelectedClientRepository } from '../../domain/repositories/selected-client.repository';
+import { Client } from '../../../clients/domain/entities/client.entity';
 
 @Injectable()
-export class SelectedClientOrmRepository implements SelectedClientRepository {
+export class SelectedClientOrmRepository {
   constructor(
     @InjectRepository(SelectedClient)
-    private readonly repository: Repository<SelectedClient>,
+    private readonly selectedRepository: Repository<SelectedClient>,
+
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
   ) {}
 
-  async addOrRemove(clientId: number): Promise<void> {
-    const existing = await this.repository.findOne({ where: { clientId } });
+  async addOrRemove(clientId: number): Promise<Client | null> {
+    const existing = await this.selectedRepository.findOne({
+      where: { clientId },
+    });
 
     if (existing) {
-      await this.repository.delete({ clientId });
-    } else {
-      const newEntry = this.repository.create({ clientId });
-      await this.repository.save(newEntry);
+      await this.selectedRepository.delete({ clientId });
+      return null;
     }
+
+    const client = await this.clientRepository.findOne({
+      where: { id: clientId },
+    });
+    if (!client) return null;
+
+    const newEntry = this.selectedRepository.create({ clientId });
+    await this.selectedRepository.save(newEntry);
+
+    return client;
   }
 
   async findAll(
     page: number = 1,
     limit: number = 16,
-  ): Promise<{ data: SelectedClient[]; total: number }> {
-    const [data, total] = await this.repository.findAndCount({
+  ): Promise<{ data: Client[]; total: number }> {
+    const selectedClients = await this.selectedRepository.find({
       take: limit,
       skip: (page - 1) * limit,
     });
 
-    return { data, total };
+    const clientIds = selectedClients.map((sc) => sc.clientId);
+
+    const clients = await this.clientRepository.findByIds(clientIds);
+
+    return { data: clients, total: clientIds.length };
   }
 }
