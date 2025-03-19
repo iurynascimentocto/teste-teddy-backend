@@ -20,5 +20,6 @@ import { SoftDeleteClientUseCase } from './application/use-cases/soft-delete-cli
     UpdateClientUseCase,
     SoftDeleteClientUseCase,
   ],
+  exports: [ClientOrmRepository],
 })
 export class ClientsModule {}

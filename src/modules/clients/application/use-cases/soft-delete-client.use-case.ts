@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ClientRepository } from '../../domain/repositories/client.repository';
+import { ClientOrmRepository } from '../../infrastructure/persistence/client.orm-repository';
 
 @Injectable()
 export class SoftDeleteClientUseCase {
-  constructor(private readonly repository: ClientRepository) {}
+  constructor(private readonly repository: ClientOrmRepository) {}
 
   async execute(id: number): Promise<void> {
     const client = await this.repository.findOne(id);

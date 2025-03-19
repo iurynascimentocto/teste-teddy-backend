@@ -16,10 +16,10 @@ export class Client {
   name: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  salario: number;
+  salary_price: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  empresa: number;
+  company_price: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
