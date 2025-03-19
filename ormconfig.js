@@ -10,8 +10,8 @@ module.exports = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: ['dist/modules/**/domain/entities/*.js'],
-  migrations: ['dist/database/migrations/*.js'],
+  entities: ['dist/src/modules/**/domain/entities/*.js'],
+  migrations: ['dist/src/database/migrations/*.js'],
   synchronize: false,
   migrationsTableName: 'migrations',
 });

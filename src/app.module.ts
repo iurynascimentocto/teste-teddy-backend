@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule } from './modules/clients/clients.module';
+import { SelectedClientsModule } from './modules/selected-clients/selected-clients.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ClientsModule } from './modules/clients/clients.module';
     }),
 
     ClientsModule,
+    SelectedClientsModule,
   ],
 })
 export class AppModule {}
