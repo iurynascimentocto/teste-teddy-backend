@@ -15,16 +15,9 @@ describe('ClientViewModel', () => {
 
     const viewModel = ClientViewModel.toViewModel(client);
 
-    const cleanString = (str: string) =>
-      str.normalize('NFKC').replace(/\s/g, ''); // 🔹 Remove espaços e caracteres invisíveis
-
     expect(viewModel.id).toBe(client.id);
     expect(viewModel.name).toBe(client.name);
-    expect(cleanString(viewModel.salary_price)).toBe(
-      cleanString('R$ 5.000,00'),
-    );
-    expect(cleanString(viewModel.company_price)).toBe(
-      cleanString('R$ 15.000,00'),
-    );
+    expect(viewModel.salary_price).toBe(5000);
+    expect(viewModel.company_price).toBe(15000);
   });
 });

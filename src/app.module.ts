@@ -1,13 +1,25 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from 'nestjs-pino';
+
 import { ClientsModule } from './modules/clients/clients.module';
 import { SelectedClientsModule } from './modules/selected-clients/selected-clients.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: { colorize: true },
+        },
+      },
     }),
 
     // Configuração do Banco de Dados PostgreSQL
@@ -26,6 +38,7 @@ import { SelectedClientsModule } from './modules/selected-clients/selected-clien
 
     ClientsModule,
     SelectedClientsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

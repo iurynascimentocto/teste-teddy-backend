@@ -35,19 +35,24 @@ export class SelectedClientOrmRepository {
     return client;
   }
 
-  async findAll(
-    page: number = 1,
-    limit: number = 16,
-  ): Promise<{ data: Client[]; total: number }> {
+  async findAll(page: number = 1, limit: number = 16) {
+    const totalItems = await this.selectedRepository.count();
+    const totalPages = Math.ceil(totalItems / limit);
+
     const selectedClients = await this.selectedRepository.find({
       take: limit,
       skip: (page - 1) * limit,
     });
 
     const clientIds = selectedClients.map((sc) => sc.clientId);
-
     const clients = await this.clientRepository.findByIds(clientIds);
 
-    return { data: clients, total: clientIds.length };
+    return {
+      data: clients,
+      totalItems,
+      totalPages,
+      currentPage: page,
+      limit,
+    };
   }
 }

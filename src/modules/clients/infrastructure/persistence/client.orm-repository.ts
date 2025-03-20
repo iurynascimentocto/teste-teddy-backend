@@ -16,16 +16,18 @@ export class ClientOrmRepository implements ClientRepository {
     return this.repository.save(client);
   }
 
-  async findAll(page: number = 1): Promise<{ data: Client[]; total: number }> {
-    const take = 16;
-    const [data, total] = await this.repository.findAndCount({
+  async findAll(page: number = 1, limit: number = 16) {
+    const totalItems = await this.repository.count();
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const data = await this.repository.find({
       where: { deleted_at: null },
-      take,
-      skip: (page - 1) * take,
+      take: limit,
+      skip: (page - 1) * limit,
       order: { created_at: 'DESC' },
     });
 
-    return { data, total };
+    return { data, totalItems, totalPages, currentPage: page, limit };
   }
 
   async findOne(id: number): Promise<Client | null> {

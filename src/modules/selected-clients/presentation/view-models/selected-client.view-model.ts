@@ -5,20 +5,17 @@ export class SelectedClientViewModel {
   @ApiProperty({ example: 1, description: 'ID do cliente' })
   id: number;
 
-  @ApiProperty({ example: 'João Silva', description: 'Nome do cliente' })
+  @ApiProperty({ example: 'Marcos Oliveira', description: 'Nome do cliente' })
   name: string;
 
   @ApiProperty({
-    example: 'R$ 5.000,00',
-    description: 'Salário do cliente formatado',
+    example: 5000.53,
+    description: 'Salário do cliente em número',
   })
-  salary_price: string;
+  salary_price: number;
 
-  @ApiProperty({
-    example: 'R$ 15.000,00',
-    description: 'Preço da empresa formatado',
-  })
-  company_price: string;
+  @ApiProperty({ example: 15000.75, description: 'Preço da empresa em número' })
+  company_price: number;
 
   @ApiProperty({
     example: '2025-03-17T12:00:00.000Z',
@@ -35,17 +32,10 @@ export class SelectedClientViewModel {
   constructor(client: Client) {
     this.id = client.id;
     this.name = client.name;
-    this.salary_price = this.formatCurrency(client.salary_price);
-    this.company_price = this.formatCurrency(client.company_price);
+    this.salary_price = client.salary_price;
+    this.company_price = client.company_price;
     this.created_at = client.created_at.toISOString();
     this.updated_at = client.updated_at.toISOString();
-  }
-
-  private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
   }
 
   static toViewModel(client: Client): SelectedClientViewModel {

@@ -49,11 +49,20 @@ export class ClientsController {
     type: [ClientViewModel],
   })
   @Get()
-  async findAll(@Query('page') page: number = 1) {
-    const { data, total } = await this.findAllClientsUseCase.execute(page);
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 16,
+  ) {
+    const result = await this.findAllClientsUseCase.execute(
+      Number(page),
+      Number(limit),
+    );
     return {
-      total,
-      clients: ClientViewModel.toListViewModel(data),
+      data: ClientViewModel.toListViewModel(result.data),
+      totalItems: result.totalItems,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+      limit: result.limit,
     };
   }
 

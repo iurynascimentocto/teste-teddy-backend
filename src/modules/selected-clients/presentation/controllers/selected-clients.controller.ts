@@ -33,8 +33,20 @@ export class SelectedClientsController {
     type: [SelectedClientViewModel],
   })
   @Get()
-  async findAll(@Query('page') page: number = 1) {
-    const { data, total } = await this.findAllUseCase.execute(page);
-    return { data: SelectedClientViewModel.toListViewModel(data), total };
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 16,
+  ) {
+    const result = await this.findAllUseCase.execute(
+      Number(page),
+      Number(limit),
+    );
+    return {
+      data: SelectedClientViewModel.toListViewModel(result.data),
+      totalItems: result.totalItems,
+      totalPages: result.totalPages,
+      currentPage: result.currentPage,
+      limit: result.limit,
+    };
   }
 }
