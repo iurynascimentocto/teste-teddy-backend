@@ -14,25 +14,29 @@ export class SelectedClientOrmRepository {
     private readonly clientRepository: Repository<Client>,
   ) {}
 
-  async addOrRemove(clientId: number): Promise<Client | null> {
+  async create(clientId: number): Promise<Client | null> {
     const existing = await this.selectedRepository.findOne({
       where: { clientId },
     });
-
-    if (existing) {
-      await this.selectedRepository.delete({ clientId });
-      return null;
-    }
 
     const client = await this.clientRepository.findOne({
       where: { id: clientId },
     });
     if (!client) return null;
 
+    if (existing) {
+      return client;
+    }
+
     const newEntry = this.selectedRepository.create({ clientId });
     await this.selectedRepository.save(newEntry);
 
     return client;
+  }
+
+  async remove(clientId: number): Promise<void> {
+    await this.selectedRepository.delete({ clientId });
+    return null;
   }
 
   async findAll(page: number = 1, limit: number = 16) {
@@ -54,5 +58,10 @@ export class SelectedClientOrmRepository {
       currentPage: page,
       limit,
     };
+  }
+
+  async removeAll(): Promise<void> {
+    await this.selectedRepository.clear();
+    return null;
   }
 }

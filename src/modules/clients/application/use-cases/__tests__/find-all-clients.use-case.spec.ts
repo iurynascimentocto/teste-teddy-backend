@@ -46,14 +46,18 @@ describe('FindAllClientsUseCase', () => {
       },
     ];
 
-    jest
-      .spyOn(repository, 'findAll')
-      .mockResolvedValue({ data: clients, total: 2 });
+    jest.spyOn(repository, 'findAll').mockResolvedValue({
+      data: clients,
+      totalItems: 2,
+      totalPages: 1,
+      currentPage: 1,
+      limit: 16,
+    });
 
     const result = await useCase.execute(1);
 
     expect(result.data).toHaveLength(2);
-    expect(result.total).toBe(2);
-    expect(repository.findAll).toHaveBeenCalledWith(1);
+    expect(result.totalItems).toBe(2);
+    expect(repository.findAll).toHaveBeenCalledWith(1, 16);
   });
 });

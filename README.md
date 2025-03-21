@@ -42,6 +42,12 @@ Isso iniciará os seguintes serviços:
 - **Grafana** (`http://localhost:3001`)
 - **Jaeger (Tracing)** (`http://localhost:16686`)
 
+### **1.2.1 Rodar migrate**
+
+```sh
+npx typeorm migration:run -d ormconfig.js
+```
+
 ### **1.3 Rodando Sem Docker (Modo Local)**
 
 Se quiser rodar sem Docker, instale as dependências e inicie a API manualmente:

@@ -1,19 +1,23 @@
-import { Controller, Post, Get, Param, Query } from '@nestjs/common';
+import { Controller, Post, Get, Param, Query, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { AddRemoveSelectedClientUseCase } from '../../application/use-cases/add-remove-selected-client.use-case';
+import { CreateSelectedClientUseCase } from '../../application/use-cases/create-selected-client.use-case';
 import { FindAllSelectedClientsUseCase } from '../../application/use-cases/find-all-selected-clients.use-case';
 import { SelectedClientViewModel } from '../view-models/selected-client.view-model';
+import { RemoveSelectedClientUseCase } from '../../application/use-cases/remove-selected-client.use-case';
+import { RemoveAllSelectedClientUseCase } from '../../application/use-cases/remove-all-selected-client.use-case';
 
 @ApiTags('selected-clients')
 @Controller('selected-clients')
 export class SelectedClientsController {
   constructor(
-    private readonly addRemoveUseCase: AddRemoveSelectedClientUseCase,
+    private readonly createUseCase: CreateSelectedClientUseCase,
     private readonly findAllUseCase: FindAllSelectedClientsUseCase,
+    private readonly removeUseCase: RemoveSelectedClientUseCase,
+    private readonly removeAllUseCase: RemoveAllSelectedClientUseCase,
   ) {}
 
   @ApiOperation({
-    summary: 'Adicionar ou remover um cliente da lista de selecionados',
+    summary: 'Adicionar um cliente da lista de selecionados',
   })
   @ApiResponse({
     status: 200,
@@ -21,8 +25,8 @@ export class SelectedClientsController {
     type: SelectedClientViewModel,
   })
   @Post(':clientId')
-  async toggleClient(@Param('clientId') clientId: number) {
-    const client = await this.addRemoveUseCase.execute(clientId);
+  async create(@Param('clientId') clientId: number) {
+    const client = await this.createUseCase.execute(clientId);
     return client ? SelectedClientViewModel.toViewModel(client) : null;
   }
 
@@ -48,5 +52,21 @@ export class SelectedClientsController {
       currentPage: result.currentPage,
       limit: result.limit,
     };
+  }
+
+  @ApiOperation({ summary: 'Remover um cliente da lista de selecionados' })
+  @ApiResponse({ status: 204, description: 'Cliente removido com sucesso' })
+  @ApiResponse({ status: 404, description: 'Cliente não encontrado' })
+  @Delete(':id')
+  async remove(@Param('id') id: number) {
+    return this.removeUseCase.execute(id);
+  }
+
+  @ApiOperation({ summary: 'Remover todos clientes da lista de selecionados' })
+  @ApiResponse({ status: 204, description: 'Clientes removidos com sucesso' })
+  @ApiResponse({ status: 404, description: 'Cliente não encontrado' })
+  @Delete()
+  async removeAll() {
+    return this.removeAllUseCase.execute();
   }
 }

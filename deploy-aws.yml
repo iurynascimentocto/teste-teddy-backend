@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy NestJS API com Docker na AWS ECS (Fargate)
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: nestjs-cluster
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: nestjs-task
+      RequiresCompatibilities: ["FARGATE"]
+      NetworkMode: awsvpc
+      Cpu: "256"
+      Memory: "512"
+      ExecutionRoleArn: arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole
+      ContainerDefinitions:
+        - Name: nestjs-api
+          Image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/nestjs-api:latest
+          PortMappings:
+            - ContainerPort: 3000
+          Environment:
+            - Name: NODE_ENV
+              Value: "production"
+            - Name: DB_HOST
+              Value: "database-endpoint.rds.amazonaws.com"
+            - Name: DB_PORT
+              Value: "5432"
+            - Name: DB_USER
+              Value: "admin"
+            - Name: DB_PASSWORD
+              Value: "yourpassword"
+            - Name: DB_NAME
+              Value: "nestjs_db"
+            - Name: RABBITMQ_URL
+              Value: "amqp://rabbitmq:5672"
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref TaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 2
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - subnet-123456
+            - subnet-654321
+          SecurityGroups:
+            - sg-123456
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: nestjs-load-balancer
+      Scheme: internet-facing
+      Subnets:
+        - subnet-123456
+        - subnet-654321
+      SecurityGroups:
+        - sg-123456
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: nestjs-target-group
+      Port: 3000
+      Protocol: HTTP
+      VpcId: vpc-123456
